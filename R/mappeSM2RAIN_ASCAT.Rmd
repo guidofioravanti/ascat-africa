@@ -1,0 +1,108 @@
+---
+title: ASCAT Monthly Precipitation
+author: Guido Fioravanti
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r intro,echo=FALSE,warning=FALSE,message=FALSE,include=FALSE,error=FALSE}
+rm(list=objects())
+library("terra")
+library("tidyverse")
+library("tidyterra")
+library("scico")
+library("rworldmap")
+library("sf")
+
+nomeFile<-"africa_SM2RAIN_ASCAT_0125_2008_2021_v1.5_fixed_monthly.nc"
+rast(nomeFile)->mybrick
+
+rworldmap::countriesCoarse->mondo
+cleangeo::clgeo_Clean(mondo)->mondo
+st_as_sf(mondo)->mondo
+mondo %>%
+  filter(REGION=="Africa")->africa
+st_union(africa)->africa
+vect(africa)->maskAfrica
+
+tidyr::expand_grid(yy=2008:2021,mm=1:12) %>%
+  mutate(yymmdd=glue::glue("{yy}-{str_pad(mm,pad='0',width=2,side='left')}-15")) %>%
+  dplyr::pull(yymmdd)->names(mybrick)
+
+grafico<-function(.mybrick,.year,.mask=NULL){
+  
+  .mybrick[as.character(.year)]->zz
+  if(!is.null(.mask)){ mask(zz,.mask)->zz}
+  
+  ggplot()+
+    geom_spatraster(data = ifel(zz>250,250,zz) )+
+    geom_sf(data=africa,fill="transparent",)+
+    facet_wrap(~lyr)+
+    scale_fill_scico(palette="nuuk",na.value="transparent",direction=-1,guide=guide_colorbar(title="mm/month",barheight =grid::unit(6,"cm")))+
+    ggtitle(paste0("Year: ",.year))+
+    theme_bw()+
+    theme(panel.grid = element_blank())
+}
+
+
+purrr::map(2008:2021,.f=~(grafico(.mybrick=mybrick,.year=.,.mask=maskAfrica)))->listaGrafici
+names(listaGrafici)<-paste0("X",2008:2021)
+```
+
+Data source: [https://zenodo.org/record/6136294#.Y8UjLRXMJaQ](https://zenodo.org/record/6136294#.Y8UjLRXMJaQ)
+
+```{r,echo=FALSE,warning=FALSE,message=FALSE,include=TRUE,error=FALSE,fig.width=15,fig.height=12}
+listaGrafici[["X2008"]]
+```
+
+```{r,echo=FALSE,warning=FALSE,message=FALSE,include=TRUE,error=FALSE,fig.width=15,fig.height=12}
+listaGrafici[["X2009"]]
+```
+
+```{r,echo=FALSE,warning=FALSE,message=FALSE,include=TRUE,error=FALSE,fig.width=15,fig.height=12}
+listaGrafici[["X2010"]]
+```
+
+```{r,echo=FALSE,warning=FALSE,message=FALSE,include=TRUE,error=FALSE,fig.width=15,fig.height=12}
+listaGrafici[["X2011"]]
+```
+
+```{r,echo=FALSE,warning=FALSE,message=FALSE,include=TRUE,error=FALSE,fig.width=15,fig.height=12}
+listaGrafici[["X2012"]]
+```
+
+```{r,echo=FALSE,warning=FALSE,message=FALSE,include=TRUE,error=FALSE,fig.width=15,fig.height=12}
+listaGrafici[["X2013"]]
+```
+
+```{r,echo=FALSE,warning=FALSE,message=FALSE,include=TRUE,error=FALSE,fig.width=15,fig.height=12}
+listaGrafici[["X2014"]]
+```
+
+```{r,echo=FALSE,warning=FALSE,message=FALSE,include=TRUE,error=FALSE,fig.width=15,fig.height=12}
+listaGrafici[["X2015"]]
+```
+
+```{r,echo=FALSE,warning=FALSE,message=FALSE,include=TRUE,error=FALSE,fig.width=15,fig.height=12}
+listaGrafici[["X2016"]]
+```
+
+```{r,echo=FALSE,warning=FALSE,message=FALSE,include=TRUE,error=FALSE,fig.width=15,fig.height=12}
+listaGrafici[["X2017"]]
+```
+
+```{r,echo=FALSE,warning=FALSE,message=FALSE,include=TRUE,error=FALSE,fig.width=15,fig.height=12}
+listaGrafici[["X2018"]]
+```
+
+```{r,echo=FALSE,warning=FALSE,message=FALSE,include=TRUE,error=FALSE,fig.width=15,fig.height=12}
+listaGrafici[["X2019"]]
+```
+
+```{r,echo=FALSE,warning=FALSE,message=FALSE,include=TRUE,error=FALSE,fig.width=15,fig.height=12}
+listaGrafici[["X2020"]]
+```
+
+```{r,echo=FALSE,warning=FALSE,message=FALSE,include=TRUE,error=FALSE,fig.width=15,fig.height=12}
+listaGrafici[["X2021"]]
+```
